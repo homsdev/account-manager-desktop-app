@@ -5,8 +5,11 @@ import {AccountAPI} from "./types/AccountAPI";
 import {Account} from "./types/model/Account";
 
 const accountAPI: AccountAPI = {
+    create: async (account: Account): Promise<Account> => await ipcRenderer.invoke("Account:save",account),
     getAll: async (): Promise<Account[]> => await ipcRenderer.invoke("Account:getAll"),
     getById: async (id): Promise<Account> => await ipcRenderer.invoke("Account:getById", id),
+    deleteById: async (id: string): Promise<void> => await ipcRenderer.invoke("Account:deleteById",id),
+    update: async (): Promise<Account> => await ipcRenderer.invoke("Account:update"),
 }
 
 contextBridge.exposeInMainWorld("accountAPI", accountAPI);
