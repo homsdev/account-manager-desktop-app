@@ -5,11 +5,13 @@ import CardHeader from "@mui/material/CardHeader";
 import IconButton from "@mui/material/IconButton";
 
 import {Edit,} from "@mui/icons-material";
+import {Account} from "../../types/model/Account";
 
 type AccountCardProps = {
     accountId: string;
     alias: string;
     balance: number;
+    onEditButtonClick: (account: Account) => void;
 }
 
 const getRandomColor = (): string => {
@@ -21,7 +23,7 @@ const getRandomColor = (): string => {
     return color;
 };
 
-const AccountCard: React.FC<AccountCardProps> = ({accountId, balance, alias}) => {
+const AccountCard: React.FC<AccountCardProps> = ({accountId, balance, alias, onEditButtonClick}) => {
     return (
         <Card key={accountId}>
             <CardHeader
@@ -31,7 +33,7 @@ const AccountCard: React.FC<AccountCardProps> = ({accountId, balance, alias}) =>
                     </Avatar>
                 }
                 action={
-                    <IconButton>
+                    <IconButton onClick={() => onEditButtonClick({accountId, balance, alias})}>
                         <Edit/>
                     </IconButton>
                 }

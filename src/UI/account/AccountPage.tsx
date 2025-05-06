@@ -4,7 +4,6 @@ import {useDataContext} from "../context/DataContext";
 import Box from "@mui/material/Box";
 import Button from '@mui/material/Button';
 import Fab from "@mui/material/Fab";
-import FormControl from "@mui/material/FormControl";
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import {Add} from '@mui/icons-material';
@@ -12,31 +11,70 @@ import {Add} from '@mui/icons-material';
 import AccountCard from "./AccountCard";
 import {Account} from "../../types/model/Account";
 
+enum submitAction {
+    EDIT = "edit",
+    CREATE = "create",
+}
+
 const AccountPage: React.FC = () => {
 
     const [modalActive, setModalActive] = useState(false);
-    const {accounts, dispatch} = useDataContext();
+    const [currentAction, setCurrentAction] = useState<submitAction>();
+    const {accounts, currentAccount, dispatch} = useDataContext();
+
+    async function saveData(e: FormEvent<HTMLFormElement>) {
+        console.info("executing saveData");
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const accountData: Partial<Account> = {
+            alias: formData.get('alias') as string,
+            balance: parseFloat(formData.get('balance') as string),
+        }
+
+        if (currentAction === submitAction.CREATE) {
+            const createdAccount = await window.accountAPI.create(accountData as Account);
+            if (createdAccount) {
+                dispatch({
+                    type: "CREATE_ACCOUNT",
+                    newAccount: createdAccount,
+                })
+            }
+        }
+
+        if (currentAction === submitAction.EDIT) {
+            const updatedAccount = await window.accountAPI.update(accountData as Account, currentAccount.accountId);
+            const updatedAccounts = accounts.map(account => {
+                if (account.accountId === currentAccount.accountId) {
+                    return {...account, balance: updatedAccount.balance, alias: updatedAccount.alias};
+                }
+                return account;
+            });
+
+            dispatch({
+                type: "SET_ACCOUNTS",
+                accounts: updatedAccounts,
+            })
+        }
+
+        setModalActive(false);
+    }
 
     function toggleModal() {
         setModalActive(!modalActive);
     }
 
-    async function saveData(e: FormEvent<HTMLFormElement>) {
-        console.info("executing saveData");
-        e.preventDefault();
-        const newAccountData = new FormData(e.currentTarget);
-        const accountData = {
-            alias: newAccountData.get('alias'),
-            balance: parseFloat(newAccountData.get('balance') as string),
-        } as Account;
-        const createdAccount = await window.accountAPI.create(accountData);
-        if (createdAccount) {
-            dispatch({
-                type: "CREATE_ACCOUNT",
-                newAccount: createdAccount,
-            })
-        }
-        setModalActive(false);
+    function onEditButtonClick(selectedAccount: Account) {
+        setModalActive(true);
+        setCurrentAction(submitAction.EDIT);
+        dispatch({
+            type: "SET_CURRENT_ACCOUNT",
+            currentAccount: selectedAccount,
+        });
+    }
+
+    function onCreateButtonClick() {
+        setModalActive(true);
+        setCurrentAction(submitAction.CREATE);
     }
 
     return (
@@ -44,16 +82,17 @@ const AccountPage: React.FC = () => {
             <Box sx={{display: "flex", flexDirection: "column", gap: 2}}>
                 {accounts.map((account) => (
                     <AccountCard key={account.accountId} accountId={account.accountId} alias={account.alias}
-                                 balance={account.balance}/>
+                                 balance={account.balance} onEditButtonClick={onEditButtonClick}/>
                 ))}
             </Box>
-            <Fab color="success" sx={{position: "fixed", bottom: 24, right: 24}} onClick={toggleModal}>
+            <Fab color="success" sx={{position: "fixed", bottom: 24, right: 24}}
+                 onClick={() => onCreateButtonClick()}>
                 <Add/>
             </Fab>
             <Modal open={modalActive}>
                 <Box sx={{
                     width: "400px",
-                    bgcolor: "white",
+                    backgroundColor: "white",
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
@@ -77,7 +116,7 @@ const AccountPage: React.FC = () => {
                                 Add
                             </Button>
                             <Button sx={{flex: 1}} variant="outlined"
-                                    onClick={toggleModal}>Cancel</Button>
+                                    onClick={() => toggleModal()}>Cancel</Button>
                         </Box>
                     </Box>
                 </Box>

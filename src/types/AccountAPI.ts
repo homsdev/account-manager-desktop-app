@@ -5,5 +5,5 @@ export interface AccountAPI {
     getAll: () => Promise<Account[]>;
     getById: (id: string) => Promise<Account>;
     deleteById: (id: string) => Promise<void>;
-    update: (account: Account) => Promise<Account>;
+    update: (account: Account, accountId: string) => Promise<Account>;
 }

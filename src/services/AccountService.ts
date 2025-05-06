@@ -63,9 +63,12 @@ export async function getAccountById(accountId: string): Promise<Account> {
     return data[0];
 }
 
-export async function updateAccount(account: Account): Promise<Account> {
+export async function updateAccount(account: Account, accountId: string): Promise<Account> {
     console.info("Updating account from main process");
-    const response = await req.put<APIResponse>('api/accounts', account);
+    const response = await req.put<APIResponse>(`api/accounts/${accountId}`, {
+        "accountAlias": account.alias,
+        "accountBalance": account.balance,
+    });
     const {data} = response.data;
     assertIsAccount(data);
     return data[0];

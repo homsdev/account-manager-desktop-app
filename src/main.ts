@@ -45,8 +45,8 @@ app.on('ready', () => {
     ipcMain.handle("Account:deleteById", (event, accountId: string) => {
         return deleteAccount(accountId);
     });
-    ipcMain.handle("Account:update", (event, account: Account) => {
-        return updateAccount(account);
+    ipcMain.handle("Account:update", (event, account: Account, accountId: string) => {
+        return updateAccount(account, accountId);
     })
     createWindow();
 });
