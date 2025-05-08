@@ -4,7 +4,7 @@ import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import IconButton from "@mui/material/IconButton";
 
-import {Edit,} from "@mui/icons-material";
+import {Edit, Delete} from "@mui/icons-material";
 import {Account} from "../../types/model/Account";
 
 type AccountCardProps = {
@@ -12,6 +12,7 @@ type AccountCardProps = {
     alias: string;
     balance: number;
     onEditButtonClick: (account: Account) => void;
+    onDeleteButtonClick: (account: Account) => void;
 }
 
 const getRandomColor = (): string => {
@@ -23,7 +24,18 @@ const getRandomColor = (): string => {
     return color;
 };
 
-const AccountCard: React.FC<AccountCardProps> = ({accountId, balance, alias, onEditButtonClick}) => {
+const AccountCard: React.FC<AccountCardProps> = ({
+                                                     accountId,
+                                                     balance,
+                                                     alias,
+                                                     onEditButtonClick,
+                                                     onDeleteButtonClick
+                                                 }) => {
+    function formatBalance(quantity: number) {
+        return Intl.NumberFormat("es-MX",
+            {style: "currency", currency: "MXN"}).format(quantity);
+    }
+
     return (
         <Card key={accountId}>
             <CardHeader
@@ -33,12 +45,20 @@ const AccountCard: React.FC<AccountCardProps> = ({accountId, balance, alias, onE
                     </Avatar>
                 }
                 action={
-                    <IconButton onClick={() => onEditButtonClick({accountId, balance, alias})}>
-                        <Edit/>
-                    </IconButton>
+                    <>
+                        <IconButton
+                            onClick={() => onEditButtonClick({accountId, balance, alias})}>
+                            <Edit/>
+                        </IconButton>
+                        <IconButton
+                            color="error"
+                            onClick={() => onDeleteButtonClick({accountId, balance, alias})}>
+                            <Delete/>
+                        </IconButton>
+                    </>
                 }
                 title={alias.toUpperCase()}
-                subheader={`$${balance}`}
+                subheader={formatBalance(balance)}
             />
         </Card>
     )

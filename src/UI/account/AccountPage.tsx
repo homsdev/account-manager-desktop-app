@@ -27,8 +27,8 @@ const AccountPage: React.FC = () => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const accountData: Partial<Account> = {
-            alias: formData.get('alias') as string,
-            balance: parseFloat(formData.get('balance') as string),
+            alias: (formData.get('alias') as string) || currentAccount.alias,
+            balance: parseFloat(formData.get('balance') as string) || currentAccount.balance,
         }
 
         if (currentAction === submitAction.CREATE) {
@@ -45,7 +45,11 @@ const AccountPage: React.FC = () => {
             const updatedAccount = await window.accountAPI.update(accountData as Account, currentAccount.accountId);
             const updatedAccounts = accounts.map(account => {
                 if (account.accountId === currentAccount.accountId) {
-                    return {...account, balance: updatedAccount.balance, alias: updatedAccount.alias};
+                    return {
+                        ...account,
+                        balance: updatedAccount.balance,
+                        alias: updatedAccount.alias,
+                    };
                 }
                 return account;
             });
@@ -72,17 +76,31 @@ const AccountPage: React.FC = () => {
         });
     }
 
+    function onDeleteButtonClick(accountToDelete: Account) {
+        console.log(accountToDelete);
+        window.accountAPI.deleteById(accountToDelete.accountId)
+            .then(res => dispatch({
+                type: "SET_ACCOUNTS",
+                accounts: accounts.filter(account => account.accountId !== accountToDelete.accountId),
+            }))
+            .catch(err => console.log(err));
+    }
+
     function onCreateButtonClick() {
         setModalActive(true);
         setCurrentAction(submitAction.CREATE);
     }
+
 
     return (
         <>
             <Box sx={{display: "flex", flexDirection: "column", gap: 2}}>
                 {accounts.map((account) => (
                     <AccountCard key={account.accountId} accountId={account.accountId} alias={account.alias}
-                                 balance={account.balance} onEditButtonClick={onEditButtonClick}/>
+                                 balance={account.balance}
+                                 onEditButtonClick={onEditButtonClick}
+                                 onDeleteButtonClick={onDeleteButtonClick}
+                    />
                 ))}
             </Box>
             <Fab color="success" sx={{position: "fixed", bottom: 24, right: 24}}
@@ -102,9 +120,9 @@ const AccountPage: React.FC = () => {
                 }}>
                     <Box component="form" sx={{display: "flex", flexDirection: "column", gap: 2}} onSubmit={saveData}>
                         <TextField sx={{flex: 1}} name='alias' type="text" label="Account alias"
-                                   variant="filled"></TextField>
+                                   variant="filled" defaultValue={currentAccount?.alias || ""}></TextField>
                         <TextField sx={{flex: 1}} name='balance' type="number" label="Balance"
-                                   variant="filled"></TextField>
+                                   variant="filled" defaultValue={currentAccount?.balance || 0}></TextField>
                         <Box sx={{
                             width: '50%',
                             display: "flex",
