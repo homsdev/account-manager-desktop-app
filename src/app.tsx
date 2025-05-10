@@ -2,8 +2,9 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {AccountAPI} from "./types/AccountAPI";
 import Routes from "./UI/Routes";
-import {StyledEngineProvider} from "@mui/material";
+import {StyledEngineProvider, ThemeProvider} from "@mui/material";
 import {DataProvider} from "./UI/context/DataContext";
+import darkTheme from "./UI/themes//DarkTheme";
 
 declare global {
     interface Window {
@@ -14,10 +15,12 @@ declare global {
 const root = createRoot(document.body);
 root.render(
     <React.StrictMode>
-        <DataProvider>
-            <StyledEngineProvider injectFirst>
-                <Routes/>
-            </StyledEngineProvider>
-        </DataProvider>
+        <ThemeProvider theme={darkTheme}>
+            <DataProvider>
+                <StyledEngineProvider injectFirst>
+                    <Routes/>
+                </StyledEngineProvider>
+            </DataProvider>
+        </ThemeProvider>
     </React.StrictMode>
 );

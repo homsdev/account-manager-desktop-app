@@ -1,6 +1,7 @@
 import {createHashRouter, RouterProvider} from "react-router";
 import HomePage from "./HomePage";
 import React from "react";
+import AccountsPage from "./account/AccountsPage";
 import AccountPage from "./account/AccountPage";
 import MainHome from "./home/MainHome";
 
@@ -10,12 +11,16 @@ const router = createHashRouter([
         element: <HomePage/>,
         children: [
             {
-                path: "/",
+                index: true,
                 element: <MainHome/>,
             },
             {
-                path: "/accounts",
-                element: <AccountPage/>
+                path: "accounts",
+                element: <AccountsPage/>,
+            },
+            {
+                path: "accounts/:accountId",
+                element: <AccountPage/>,
             }
         ]
     }
