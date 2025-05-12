@@ -8,9 +8,12 @@ import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import {Add} from '@mui/icons-material';
 
+
 import AccountCard from "./AccountCard";
 import {Account} from "../../types/model/Account";
 import {useNavigate} from "react-router";
+import {useTheme} from "@mui/material";
+
 
 enum submitAction {
     EDIT = "edit",
@@ -23,6 +26,7 @@ const AccountsPage: React.FC = () => {
     const [modalActive, setModalActive] = useState(false);
     const [currentAction, setCurrentAction] = useState<submitAction>();
     const {accounts, currentAccount, dispatch} = useDataContext();
+    const theme = useTheme();
 
     async function saveData(e: FormEvent<HTMLFormElement>) {
         console.info("executing saveData");
@@ -122,8 +126,8 @@ const AccountsPage: React.FC = () => {
             </Fab>
             <Modal open={modalActive}>
                 <Box sx={{
+                    backgroundColor: theme.palette.background.paper,
                     width: "400px",
-                    backgroundColor: "white",
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
