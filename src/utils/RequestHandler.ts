@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosResponse} from "axios";
+import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 import {APIResponse} from "../types/APIResponse";
 
 function okInterceptor(response: AxiosResponse<APIResponse>) {
@@ -7,7 +7,15 @@ function okInterceptor(response: AxiosResponse<APIResponse>) {
 
 function errorInterceptor(response: AxiosResponse<APIResponse>) {
     console.info("Executing Error Interceptor");
-    return Promise.reject(response);
+    console.error(response);
+    return Promise.reject(new Error("Something went wrong"));
+}
+
+function preSendingInterceptor(config: InternalAxiosRequestConfig) {
+    console.info("Sending request to", config.url);
+    console.log("Request payload");
+    console.log(config.data);
+    return config;
 }
 
 export const requestHandler = (): AxiosInstance => {
@@ -15,6 +23,7 @@ export const requestHandler = (): AxiosInstance => {
         baseURL: "http://localhost:8080",
     })
 
+    instance.interceptors.request.use(preSendingInterceptor);
     instance.interceptors.response.use(okInterceptor, errorInterceptor);
 
     return instance;

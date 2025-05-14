@@ -1,7 +1,10 @@
 import {app, BrowserWindow, ipcMain} from 'electron';
 import path from 'node:path';
 //import started from 'electron-squirrel-startup';
-import {getAccountById, getAllAccounts} from "./services/AccountService";
+import {createAccount, deleteAccount, getAccountById, getAllAccounts, updateAccount} from "./services/AccountService";
+import {Account} from "./types/model/Account";
+import {Transaction} from "./types/model/Transaction";
+import {createTransaction} from "./services/TransactionService";
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -34,10 +37,22 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    ipcMain.handle("Account:save", (event, account: Account) => {
+        return createAccount(account);
+    });
     ipcMain.handle("Account:getAll", getAllAccounts);
-    ipcMain.handle("Account:getById", (event, accountId) => {
+    ipcMain.handle("Account:getById", (event, accountId: string) => {
         return getAccountById(accountId);
     });
+    ipcMain.handle("Account:deleteById", (event, accountId: string) => {
+        return deleteAccount(accountId);
+    });
+    ipcMain.handle("Account:update", (event, account: Account, accountId: string) => {
+        return updateAccount(account, accountId);
+    });
+    ipcMain.handle("Transaction:create", (event, accountId: string, transaction: Transaction) => {
+        return createTransaction(accountId, transaction);
+    })
     createWindow();
 });
 
