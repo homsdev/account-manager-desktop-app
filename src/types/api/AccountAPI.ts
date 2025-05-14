@@ -1,4 +1,4 @@
-import {Account} from "./model/Account";
+import {Account} from "../model/Account";
 
 export interface AccountAPI {
     create: (account: Account) => Promise<Account>;

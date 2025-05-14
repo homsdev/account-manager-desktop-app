@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {FormEvent, useState} from "react";
 import {useParams} from "react-router";
 
 import Box from "@mui/material/Box";
@@ -6,7 +6,11 @@ import Button from '@mui/material/Button';
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
+import Select from "@mui/material/Select";
 import TextField from '@mui/material/TextField';
 import Typography from "@mui/material/Typography";
 
@@ -17,7 +21,9 @@ import {DateCalendar} from '@mui/x-date-pickers/DateCalendar';
 import {useDataContext} from "../context/DataContext";
 import TransactionCard from "../transactions/TransactionCard";
 import {useTheme} from "@mui/material";
+import {Transaction} from "../../types/model/Transaction";
 
+import days from "dayjs";
 
 type Params = {
     accountId: string;
@@ -92,6 +98,21 @@ const AccountPage: React.FC = () => {
     const {currentAccount} = useDataContext();
     const theme = useTheme();
 
+    async function saveTransaction(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newTransaction = {
+            amount: parseFloat(formData.get("amount") as string),
+            type: formData.get("type"),
+            date: formData.get("date"),
+            description: formData.get("description"),
+        } as Transaction;
+        console.log(newTransaction);
+        const res = await window.transactionAPI.create(accountId, newTransaction);
+        console.log(res);
+        setModalActive(false);
+    }
+
     return (
         <Container>
             <Box>
@@ -160,11 +181,20 @@ const AccountPage: React.FC = () => {
                     borderRadius: 4,
                 }}>
                     <Box component="form" sx={{display: "flex", flexDirection: "column", gap: 2}}
-                         onSubmit={() => console.log("submitting")}>
-                        <TextField sx={{flex: 1}} name='alias' type="text" label="Account alias"
+                         onSubmit={saveTransaction}>
+                        <TextField sx={{flex: 1}} name='description' type="text" label="Transaction Description"
                                    variant="filled"></TextField>
-                        <TextField sx={{flex: 1}} name='balance' type="number" label="Balance"
+                        <TextField sx={{flex: 1}} name='amount' type="number" label="Amount"
                                    variant="filled"></TextField>
+                        <TextField sx={{flex: 1}} name='date' type="date" label="Date"
+                                   variant="filled" defaultValue={days().format("YYYY-MM-DD")}></TextField>
+                        <FormControl variant="filled" sx={{flexGrow: 1}}>
+                            <InputLabel id="type-label">Type</InputLabel>
+                            <Select name="type" labelId="type-label" label="Type">
+                                <MenuItem value="EXPENSE">Expense</MenuItem>
+                                <MenuItem value="INCOME">Income</MenuItem>
+                            </Select>
+                        </FormControl>
                         <Box sx={{
                             width: '50%',
                             display: "flex",

@@ -14,8 +14,6 @@ function assertIsAccounts(accountsData: unknown): asserts accountsData is Accoun
     if (accountsData?.length === 0) {
         throw new Error("Accounts is empty");
     }
-
-    return;
 }
 
 function assertIsAccount(accountData: unknown): asserts accountData is Account {
@@ -28,8 +26,7 @@ function assertIsAccount(accountData: unknown): asserts accountData is Account {
     if (accountData.length > 1) {
         throw new Error("Received more than 1 details");
     }
-
-    return;
+    
 }
 
 export async function createAccount(account: Account): Promise<Account> {

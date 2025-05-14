@@ -3,6 +3,8 @@ import path from 'node:path';
 //import started from 'electron-squirrel-startup';
 import {createAccount, deleteAccount, getAccountById, getAllAccounts, updateAccount} from "./services/AccountService";
 import {Account} from "./types/model/Account";
+import {Transaction} from "./types/model/Transaction";
+import {createTransaction} from "./services/TransactionService";
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -47,6 +49,9 @@ app.on('ready', () => {
     });
     ipcMain.handle("Account:update", (event, account: Account, accountId: string) => {
         return updateAccount(account, accountId);
+    });
+    ipcMain.handle("Transaction:create", (event, accountId: string, transaction: Transaction) => {
+        return createTransaction(accountId, transaction);
     })
     createWindow();
 });
